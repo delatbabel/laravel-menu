@@ -495,32 +495,34 @@ class Builder
      *
      * @param string $type
      * @param int $parent
+     * @param array $innerAttributes array of attributes for inner tags.
      * @return string
      */
-    public function render($type = 'ul', $parent = null)
+    public function render($type = 'ul', $parent = null, $innerAttributes=array())
     {
         $items = '';
 
         $item_tag = in_array($type, array('ul', 'ol')) ? 'li' : $type;
 
-        foreach ($this->whereParent($parent) as $item) {
+        foreach ($this->whereParent($parent) as $item)
+        {
             $items  .= '<' . $item_tag . self::attributes($item->attr()) . '>';
 
-            if ($item->link) {
+            if($item->link) {
                 $items .= '<a' . self::attributes($item->link->attr()) . ' href="' . $item->url() . '">' . $item->title . '</a>';
             } else {
                 $items .= $item->title;
             }
 
-            if ($item->hasChildren()) {
-                $items .= "<{$type}>";
+            if( $item->hasChildren() ) {
+                $items .= "<{$type}" . self::attributes($innerAttributes) . ">";
                 $items .= $this->render($type, $item->id);
                 $items .= "</{$type}>";
             }
 
             $items .= "</{$item_tag}>";
 
-            if ($item->divider) {
+            if($item->divider) {
                 $items .= '<' . $item_tag . self::attributes($item->divider) . '></' . $item_tag . '>';
             }
         }
@@ -531,31 +533,37 @@ class Builder
     /**
      * Returns the menu as an unordered list.
      *
+     * @param array $attributes array of attributes for the outer UL tag.
+     * @param array $innerAttributes array of attributes for inner UL tags.
      * @return string
      */
-    public function asUl($attributes = array())
+    public function asUl($attributes = array(), $innerAttributes=array())
     {
-        return '<ul' . self::attributes($attributes) .'>' . $this->render('ul') . '</ul>';
+        return '<ul' . self::attributes($attributes) .'>' . $this->render('ul', null, $innerAttributes) . '</ul>';
     }
 
     /**
      * Returns the menu as an ordered list.
      *
+     * @param array $attributes array of attributes for the outer OL tag.
+     * @param array $innerAttributes array of attributes for inner OL tags.
      * @return string
      */
-    public function asOl($attributes = array())
+    public function asOl($attributes = array(), $innerAttributes=array())
     {
-        return '<ol' . self::attributes($attributes) .'>' . $this->render('ol') . '</ol>';
+        return '<ol' . self::attributes($attributes) .'>' . $this->render('ol', null, $innerAttributes) . '</ol>';
     }
 
     /**
      * Returns the menu as div containers
      *
+     * @param array $attributes array of attributes for the outer DIV tag.
+     * @param array $innerAttributes array of attributes for inner DIV tags.
      * @return string
      */
-    public function asDiv($attributes = array())
+    public function asDiv($attributes = array(), $innerAttributes=array())
     {
-        return '<div' . self::attributes($attributes) .'>' . $this->render('div') . '</div>';
+        return '<div' . self::attributes($attributes) .'>' . $this->render('div', null, $innerAttributes) . '</div>';
     }
 
     /**
